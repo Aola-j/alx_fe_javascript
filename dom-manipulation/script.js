@@ -4,6 +4,7 @@ const categorySelect = document.getElementById("categorySelect");
 const addQuote = document.getElementById("addQuote")
 const exportBtn = document.getElementById("exportJson");
 const importFile = document.getElementById("importFile");
+const notification = document.getElementById("notification");
 
 
 let quotes = [
@@ -128,10 +129,45 @@ function importQuotes(event) {
   };
   reader.readAsText(file);
 }
+
+// ---- Server Sync Simulation ----
+async function syncWithServer() {
+  try {
+    // Simulate fetching from a server (JSONPlaceholder as example)
+    const res = await fetch("https://jsonplaceholder.typicode.com/posts?_limit=5");
+    const serverData = await res.json();
+
+    // Convert server data to quote format
+    const serverQuotes = serverData.map(post => ({
+      text: post.title,
+      category: "server"
+    }));
+
+    // Conflict resolution: server data takes precedence
+    quotes = [...serverQuotes, ...quotes.filter(q => q.category !== "server")];
+
+    // Save updated quotes locally
+    saveQuotes();
+    populateCategories();
+    showRandomQuote();
+
+    // Notify user
+    notification.style.display = "block";
+    setTimeout(() => notification.style.display = "none", 3000);
+  } catch (err) {
+    console.error("Server sync failed:", err);
+  }
+}
+
+// Periodically check server every 15 seconds
+setInterval(syncWithServer, 15000);
+
+
 addQuote.addEventListener("click", createAddQuoteForm);
 newQuote.addEventListener("click", showRandomQuote);
 categorySelect.addEventListener("change", showRandomQuote);
 exportBtn.addEventListener("click", exportQuotes);
 importFile.addEventListener("change", importQuotes);
 
+populateCategories()
 showRandomQuote();
