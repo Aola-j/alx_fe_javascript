@@ -172,7 +172,7 @@ async function syncQuotes() {
     showRandomQuote();
 
     // Show notification
-    notification.textContent = "Data updated from server!";
+    notification.textContent = "Qoutes synced with server!";
     notification.style.display = "block";
     setTimeout(() => notification.style.display = "none", 3000);
 
