@@ -4,10 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dynamic Quote Generator</title>
+
+    <style>
+      #quoteDisplay {
+      font-size: 1.2rem;
+      font-style: italic;
+      margin: 20px 0;
+      min-height: 50px;
+    }
+    select, input, button {
+      margin-top: 20px;
+      padding: 8px;
+      font-size: 1rem;
+    }
+    </style>
   </head>
   <body>
     <h1>Dynamic Quote Generator</h1>
-    <div id="quoteDisplay"></div>
+    <label for="categorySelect">Category:</label>
+     <select id="categorySelect"></select>
+   
+     <div id="quoteDisplay"></div>
+     
     <button id="newQuote">Show New Quote</button>
 
      <div>

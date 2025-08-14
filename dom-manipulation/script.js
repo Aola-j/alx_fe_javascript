@@ -1,5 +1,6 @@
 const quoteDisplay = document.getElementById("quoteDisplay")
 const newQuote = document.getElementById("newQuote")
+const categorySelect = document.getElementById("categorySelect");
 
 let quotes = [
   { text: "The best way to get started is to quit talking and begin doing.", category: "inspiration" },
@@ -7,6 +8,17 @@ let quotes = [
   { text: "I'm not arguing, I'm just explaining why I'm right.", category: "humor" },
   { text: "I'm on a seafood diet. I see food, and I eat it.", category: "humor" }
 ];
+
+function loadCategories() {
+  categorySelect.innerHTML = "";
+  const categories = [...new Set(quotes.map(q => q.category))];
+  categories.forEach(cat => {
+    let option = document.createElement("option");
+    option.value = cat;
+    option.textContent = cat;
+    categorySelect.appendChild(option);
+  });
+}
 
 function showRandomQuote() {
     const randomIndex = Math.floor(Math.random() * quotes.length);
