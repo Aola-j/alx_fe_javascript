@@ -25,35 +25,47 @@ function saveQuotes() {
 
 
 
-function updateCategoryOptions(selectCategory = null) {
-  const previous = categorySelect.value;
-  categorySelect.innerHTML = "";
+function populateCategories() {
+  const categories = ["all", ...new Set(quotes.map(q => q.category))];
+  categoryFilter.innerHTML = ""; // Clear dropdown
 
-  const allOpt = document.createElement("option");
-  allOpt.value = "all";
-  allOpt.textContent = "All";
-  categorySelect.appendChild(allOpt);
+  categories.forEach(c => {
+    const option = document.createElement("option");
+    option.value = c;
+    option.textContent = c;
+    categoryFilter.appendChild(option);
+  });
 
-
-  // Keep prior selection or switch to provided one
-  if (selectCategory && [...categorySelect.options].some(o => o.value === selectCategory)) {
-    categorySelect.value = selectCategory;
-  } else if ([...categorySelect.options].some(o => o.value === previous)) {
-    categorySelect.value = previous;
-  } else {
-    categorySelect.value = "all";
+  // Restore last category
+  const lastCategory = localStorage.getItem("lastCategory") || "all";
+  if (categories.includes(lastCategory)) {
+    categoryFilter.value = lastCategory;
   }
 }
+populateCategories();
 
 
-
+// Show random quote
 function showRandomQuote() {
-    const randomIndex = Math.floor(Math.random() * quotes.length);
-  const quote = quotes[randomIndex];
-  quoteDisplay.innerText = `"${quote.text}" — (${quote.category})`;
+  const selectedCategory = categoryFilter.value;
+  const filtered = selectedCategory === "all"
+    ? quotes
+    : quotes.filter(q => q.category === selectedCategory);
+
+  if (filtered.length === 0) {
+    quoteDisplay.innerText = "No quotes available in this category.";
+    return;
+  }
+
+  const randomQuote = filtered[Math.floor(Math.random() * filtered.length)];
+  quoteDisplay.innerText = `"${randomQuote.text}" — (${randomQuote.category})`;
 }
 
-newQuote.addEventListener("click", showRandomQuote);
+// Filter quotes (just updates random selection)
+function filterQuotes() {
+  localStorage.setItem("lastCategory", categoryFilter.value);
+  showRandomQuote();
+}
 
 
 function createAddQuoteForm() {
@@ -73,7 +85,7 @@ function createAddQuoteForm() {
   saveQuotes();
 
   // Refresh categories and auto-select the new one
-  updateCategoryOptions(category);
+  populateCategories();
 
   // Optionally show something from the new category right away
   showRandomQuote();
@@ -105,7 +117,7 @@ function importQuotes(event) {
       if (Array.isArray(importedQuotes)) {
         quotes.push(...importedQuotes);
         saveQuotes();
-        updateCategoryOptions();
+        populateCategories();
         alert("Quotes imported successfully!");
       } else {
         alert("Invalid JSON format.");
@@ -117,6 +129,7 @@ function importQuotes(event) {
   reader.readAsText(file);
 }
 addQuote.addEventListener("click", createAddQuoteForm);
+newQuote.addEventListener("click", showRandomQuote);
 categorySelect.addEventListener("change", showRandomQuote);
 exportBtn.addEventListener("click", exportQuotes);
 importFile.addEventListener("change", importQuotes);
