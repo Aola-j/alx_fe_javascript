@@ -13,6 +13,20 @@ let quotes = [
 function updateCategoryOptions(selectCategory = null) {
   const previous = categorySelect.value;
   categorySelect.innerHTML = "";
+
+  const allOpt = document.createElement("option");
+  allOpt.value = "all";
+  allOpt.textContent = "All";
+  categorySelect.appendChild(allOpt);
+
+   uniqueCategories().forEach(cat => {
+    const opt = document.createElement("option");
+    opt.value = cat;
+    opt.textContent = capitalize(cat);
+    categorySelect.appendChild(opt);
+  });
+
+  
 }
 
 
