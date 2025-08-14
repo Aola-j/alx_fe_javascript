@@ -130,38 +130,59 @@ function importQuotes(event) {
   reader.readAsText(file);
 }
 
-// ---- Server Sync Simulation ----
-async function syncWithServer() {
+
+// 1. Fetching data from the server (mock API)
+async function fetchQuotesFromServer() {
+  const res = await fetch("https://jsonplaceholder.typicode.com/posts?_limit=5");
+  const data = await res.json();
+  // Convert server response to our quote format
+  return data.map(post => ({
+    text: post.title,
+    category: "server"
+  }));
+}
+
+// 2. Posting data to the server (mock API)
+async function postQuoteToServer(quote) {
   try {
-    // Simulate fetching from a server (JSONPlaceholder as example)
-    const res = await fetch("https://jsonplaceholder.typicode.com/posts?_limit=5");
-    const serverData = await res.json();
+    await fetch("https://jsonplaceholder.typicode.com/posts", {
+      method: "POST",
+      body: JSON.stringify(quote),
+      headers: { "Content-type": "application/json; charset=UTF-8" }
+    });
+    console.log("Quote posted to server:", quote);
+  } catch (err) {
+    console.error("Error posting to server:", err);
+  }
+}
 
-    // Convert server data to quote format
-    const serverQuotes = serverData.map(post => ({
-      text: post.title,
-      category: "server"
-    }));
+// 3. Sync quotes with server (conflict resolution)
+async function syncQuotes() {
+  try {
+    const serverQuotes = await fetchQuotesFromServer();
 
-    // Conflict resolution: server data takes precedence
-    quotes = [...serverQuotes, ...quotes.filter(q => q.category !== "server")];
+    // Conflict resolution: server's "server" category quotes replace local's "server" quotes
+    quotes = [
+      ...serverQuotes,
+      ...quotes.filter(q => q.category !== "server")
+    ];
 
-    // Save updated quotes locally
     saveQuotes();
     populateCategories();
     showRandomQuote();
 
-    // Notify user
+    // Show notification
+    notification.textContent = "Data updated from server!";
     notification.style.display = "block";
     setTimeout(() => notification.style.display = "none", 3000);
+
   } catch (err) {
-    console.error("Server sync failed:", err);
+    console.error("Error syncing with server:", err);
   }
 }
 
-// Periodically check server every 15 seconds
-setInterval(syncWithServer, 15000);
-
+// 4. Periodically check server for updates
+setInterval(syncQuotes, 15000);
 
 addQuote.addEventListener("click", createAddQuoteForm);
 newQuote.addEventListener("click", showRandomQuote);
@@ -169,5 +190,4 @@ categorySelect.addEventListener("change", showRandomQuote);
 exportBtn.addEventListener("click", exportQuotes);
 importFile.addEventListener("change", importQuotes);
 
-populateCategories()
 showRandomQuote();
