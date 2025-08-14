@@ -1,6 +1,7 @@
 const quoteDisplay = document.getElementById("quoteDisplay")
 const newQuote = document.getElementById("newQuote")
 const categorySelect = document.getElementById("categorySelect");
+const addQuote = document.getElementById("addQuote")
 
 let quotes = [
   { text: "The best way to get started is to quit talking and begin doing.", category: "inspiration" },
@@ -9,16 +10,12 @@ let quotes = [
   { text: "I'm on a seafood diet. I see food, and I eat it.", category: "humor" }
 ];
 
-function loadCategories() {
+function updateCategoryOptions(selectCategory = null) {
+  const previous = categorySelect.value;
   categorySelect.innerHTML = "";
-  const categories = [...new Set(quotes.map(q => q.category))];
-  categories.forEach(cat => {
-    let option = document.createElement("option");
-    option.value = cat;
-    option.textContent = cat;
-    categorySelect.appendChild(option);
-  });
 }
+
+
 
 function showRandomQuote() {
     const randomIndex = Math.floor(Math.random() * quotes.length);
@@ -29,22 +26,29 @@ function showRandomQuote() {
 newQuote.addEventListener("click", showRandomQuote);
 
 
-function addQuote() {
+function createAddQuoteForm() {
   const textInput = document.getElementById("newQuoteText");
-  const categoryInput = document.getElementById("newQuoteCategory");
+  const catInput  = document.getElementById("newQuoteCategory");
 
-  const newText = textInput.value;
-  const newCategory = categoryInput.value;
+  const text = textInput.value.trim();
+  const category = catInput.value.trim().toLowerCase();
 
-  if (newText && newCategory){
-    quotes.push({ text: newText, category: newCategory});
-
-    textInput.value = ""
-    categoryInput.value = ""
-
-    alert("Quote added successfully!")
-  } else {
-    alert ("please enter both quote and category")
+  if (!text || !category) {
+    alert("Please enter both a quote and a category.");
+    return;
   }
-}
 
+  quotes.push({ text, category });
+
+  // Refresh categories and auto-select the new one
+  updateCategoryOptions(category);
+
+  // Optionally show something from the new category right away
+  showRandomQuote();
+
+  // Clear inputs
+  textInput.value = "";
+  catInput.value  = "";
+}
+addQuote.addEventListener("click", createAddQuoteForm);
+categorySelect.addEventListener("change", showRandomQuote);
